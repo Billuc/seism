@@ -1,13 +1,14 @@
 const std = @import("std");
 const Args = @import("args.zig").Args;
+const CmdRunner = @import("cmd.zig").CmdRunner;
 
 pub fn main(init: std.process.Init) !void {
     const args = init.minimal.args;
-    // const gpa = init.gpa;
+    const gpa = init.gpa;
     const io = init.io;
 
     const arguments = Args.parse(args);
-    std.debug.print("{s}", .{arguments.program});
+    std.debug.print("{s}\n", .{arguments.program});
 
     const dir = std.Io.Dir.cwd();
     // defer dir.close(io);
@@ -18,9 +19,11 @@ pub fn main(init: std.process.Init) !void {
     const readBytes = try file.readPositionalAll(io, &buffer, 0);
 
     if (readBytes > 0) {
-        var iter = std.mem.splitAny(u8, buffer[0..readBytes], "\n ");
-        while (iter.next()) |w| {
-            std.debug.print("{s}", .{w});
+        var iter = std.mem.splitAny(u8, buffer[0..readBytes], "\n");
+        while (iter.next()) |line| {
+            var runner = CmdRunner.fromCommand(gpa, line) catch continue;
+            defer runner.deinit();
+            try runner.runAndPrint(io);
         }
     }
 
