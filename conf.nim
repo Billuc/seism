@@ -10,11 +10,16 @@ type Conf* = object
   update*: string
   postUpdate*: string
   updateFrequency*: int
+  healthCheck*: string
 
 proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf): void =
   var key, value: string
+  let trimmedLine = line.strip()
 
-  if scanf(line, "$w$s=$s$+$.", key, value):
+  if (trimmedLine.len() == 0):
+    return
+
+  if scanf(trimmedLine, "$w$s=$s$+$.", key, value):
     case key
     of "Install":
       conf.install = value
@@ -29,6 +34,8 @@ proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf):
         conf.updateFrequency = parseInt(value)
       except:
         echo fmt"{filepath}:{lineno}: Could not parse value as a number"
+    of "HealthCheck":
+      conf.healthCheck = value
   else:
     echo fmt"{filepath}:{lineno}: Line doesn't respect the format KEY = VALUE !"
 
@@ -45,6 +52,7 @@ proc parseConfFile*(filepath: string): Conf =
       update: "",
       postUpdate: "",
       updateFrequency: 0,
+      healthCheck: "",
     )
 
   if open(f, filepath):

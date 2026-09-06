@@ -11,3 +11,11 @@ case args.action
 of "install":
   if evalCommand(conf.install) == 0:
     discard evalCommand(conf.postInstall)
+of "update":
+  if evalCommand(conf.update) == 0:
+    discard evalCommand(conf.postUpdate)
+of "health":
+  if evalCommand(conf.healthCheck) == 0:
+    echo "Healthy !"
+  else:
+    echo "Not healthy :("
