@@ -5,6 +5,7 @@ import std/strutils
 
 type Conf* = object
   name*: string
+  description*: string
   install*: string
   postInstall*: string
   update*: string
@@ -39,6 +40,17 @@ proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf):
   else:
     echo fmt"{filepath}:{lineno}: Line doesn't respect the format KEY = VALUE !"
 
+proc parseHeaderLine(
+    filepath: string, lineno: int, line: string, conf: var Conf
+): bool =
+  if line == "---":
+    return false
+  else:
+    if conf.description != "":
+      conf.description.add("\n")
+    conf.description.add(line)
+    return true
+
 proc parseConfFile*(filepath: string): Conf =
   var
     f: File
@@ -47,6 +59,7 @@ proc parseConfFile*(filepath: string): Conf =
     i: int = 0
     conf: Conf = Conf(
       name: "",
+      description: "",
       install: "",
       postInstall: "",
       update: "",
@@ -61,10 +74,10 @@ proc parseConfFile*(filepath: string): Conf =
     conf.name = f.readLine()
 
     while f.readLine(line):
-      if not inHeader:
+      if inHeader:
+        inHeader = parseHeaderLine(filepath, i, line, conf)
+      else:
         parseProperty(filepath, i, line, conf)
-      if line == "---":
-        inHeader = false
       i += 1
 
   return conf

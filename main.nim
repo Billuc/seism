@@ -19,3 +19,7 @@ of "health":
     echo "Healthy !"
   else:
     echo "Not healthy :("
+of "info":
+  echo conf.name
+  echo ""
+  echo conf.description
