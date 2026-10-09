@@ -1,5 +1,29 @@
-# This is just an example to get you started. A typical binary package
-# uses this file as the main entry point of the application.
+import std/cmdline
+import args as _
+import conf as _
+import cmd as _
+import frequencyParser
 
 when isMainModule:
-  echo("Hello, World!")
+  var args = parseArgs(cmdline.commandLineParams())
+
+  var conf = parseConfFile(args.conffile)
+
+  case args.action
+  of "install":
+    if evalCommand(conf.install) == 0:
+      discard evalCommand(conf.postInstall)
+  of "update":
+    if evalCommand(conf.update) == 0:
+      discard evalCommand(conf.postUpdate)
+  of "health":
+    if evalCommand(conf.healthCheck) == 0:
+      echo "Healthy !"
+    else:
+      echo "Not healthy :("
+  of "info":
+    echo conf.name
+    echo ""
+    echo conf.description
+    echo ""
+    conf.updateFrequency . printRepetition()

@@ -2,6 +2,7 @@ import std/syncio
 import std/strscans
 import std/strformat
 import std/strutils
+import frequencyParser
 
 type Conf* = object
   name*: string
@@ -10,7 +11,7 @@ type Conf* = object
   postInstall*: string
   update*: string
   postUpdate*: string
-  updateFrequency*: int
+  updateFrequency*: Repetition
   healthCheck*: string
 
 proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf): void =
@@ -32,9 +33,9 @@ proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf):
       conf.postUpdate = value
     of "UpdateFrequency":
       try:
-        conf.updateFrequency = parseInt(value)
+        conf.updateFrequency = parseFrequency(value)
       except:
-        echo fmt"{filepath}:{lineno}: Could not parse value as a number"
+        echo fmt"{filepath}:{lineno}: Could not parse frequency"
     of "HealthCheck":
       conf.healthCheck = value
   else:
@@ -64,7 +65,7 @@ proc parseConfFile*(filepath: string): Conf =
       postInstall: "",
       update: "",
       postUpdate: "",
-      updateFrequency: 0,
+      updateFrequency: Repetition(frequency: Frequency.Hourly),
       healthCheck: "",
     )
 
