@@ -11,3 +11,6 @@ bin           = @["seism"]
 # Dependencies
 
 requires "nim >= 2.2.12"
+
+requires "pipe"
+requires "patty"

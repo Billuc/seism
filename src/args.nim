@@ -1,5 +1,3 @@
-import std/cmdline
-
 type Args* = object
   action*: string
   conffile*: string

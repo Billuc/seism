@@ -13,6 +13,9 @@ type Conf* = object
   postUpdate*: string
   updateFrequency*: Repetition
   healthCheck*: string
+  start*: string
+  stop*: string
+  workingDirectory*: string
 
 proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf): void =
   var key, value: string
@@ -38,6 +41,14 @@ proc parseProperty(filepath: string, lineno: int, line: string, conf: var Conf):
         echo fmt"{filepath}:{lineno}: Could not parse frequency"
     of "HealthCheck":
       conf.healthCheck = value
+    of "Start":
+      conf.start = value
+    of "Stop":
+      conf.stop = value
+    of "WorkingDirectory":
+      conf.workingDirectory = value
+    else:
+      echo fmt"Unknown key {key}: ignoring !"
   else:
     echo fmt"{filepath}:{lineno}: Line doesn't respect the format KEY = VALUE !"
 
@@ -67,6 +78,9 @@ proc parseConfFile*(filepath: string): Conf =
       postUpdate: "",
       updateFrequency: Repetition(frequency: Frequency.Hourly),
       healthCheck: "",
+      start: "",
+      stop: "",
+      workingDirectory: "",
     )
 
   if open(f, filepath):

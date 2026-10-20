@@ -27,3 +27,7 @@ proc evalCommand*(command: string): int =
 
   process.close()
   return exitCode
+
+proc runCommandInBg*(command: string, workingDir: string): void =
+  discard
+    osproc.startProcess(command, workingDir, [], nil, {poUsePath, poEvalCommand, poDaemon})
